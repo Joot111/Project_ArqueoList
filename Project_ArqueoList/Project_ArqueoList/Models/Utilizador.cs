@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.ComponentModel.DataAnnotations;
 
 namespace Project_ArqueoList.Models
 {
@@ -29,6 +30,7 @@ namespace Project_ArqueoList.Models
         public DateTime Data_Nascimento { get; set; }
 
         [StringLength(40)]
+        [BindNever]
         public string UserId { get; set; }
 
         public ICollection<Artigo> ListaArtigo { get; set; }
