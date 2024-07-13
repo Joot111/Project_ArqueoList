@@ -89,7 +89,8 @@ namespace Project_ArqueoList.Controllers
         public IActionResult Create()
         {
             ViewData["ID_Utilizador"] = new SelectList(_context.Utilizador, "idUtilizador", "Username");
-            return View();
+            var artigo = new Artigo();
+            return View(artigo);
         }
 
         // POST: Artigos/Create
@@ -99,46 +100,36 @@ namespace Project_ArqueoList.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ID,Titulo,Conteudo, Nome_Autor,validado,data_validacao,tipo,ID_Utilizador")] Artigo artigo, IFormFile Imagem)
         {
-            /* 
-             * 
-             */
-
-            // vars. auxiliares
+            // Vars auxiliares
             string nomeImagem = "";
             bool haImagem = false;
 
-            // há ficheiro?
+            // Há ficheiro?
             if (Imagem == null)
             {
-                ModelState.AddModelError("",
-                   "O fornecimento de uma imagem é obrigatório!");
+                ModelState.AddModelError("", "O fornecimento de uma imagem é obrigatório!");
                 return View(artigo);
             }
             else
             {
-                // há ficheiro, mas é imagem?
-                if (!(Imagem.ContentType == "image/png" ||
-                       Imagem.ContentType == "image/jpeg" ||
-                       Imagem.ContentType == "imagem/jpg")
-                   )
+                // Há ficheiro, mas é imagem?
+                if (!(Imagem.ContentType == "image/png" || Imagem.ContentType == "image/jpeg" || Imagem.ContentType == "image/jpg"))
                 {
-                    ModelState.AddModelError("",
-                   "Tem de fornecer um ficheiro PNG ou JPG para atribuir uma imagem!");
+                    ModelState.AddModelError("", "Tem de fornecer um ficheiro PNG ou JPG para atribuir uma imagem!");
                     return View(artigo);
                 }
                 else
                 {
-                    // há ficheiro, e é uma imagem válida
+                    // Há ficheiro, e é uma imagem válida
                     haImagem = true;
-                    // obter o nome a atribuir à imagem
+                    // Obter o nome a atribuir à imagem
                     Guid g = Guid.NewGuid();
                     nomeImagem = g.ToString();
-                    // obter a extensão do nome do ficheiro
+                    // Obter a extensão do nome do ficheiro
                     string extensao = Path.GetExtension(Imagem.FileName);
-                    // adicionar a extensão ao nome da imagem
+                    // Adicionar a extensão ao nome da imagem
                     nomeImagem += extensao;
-                    // adicionar o nome do ficheiro ao objeto que
-                    // vem do browser
+                    // Adicionar o nome do ficheiro ao objeto que vem do browser
                     artigo.Imagem = nomeImagem;
                 }
             }
@@ -151,8 +142,7 @@ namespace Project_ArqueoList.Controllers
 
                 if (haImagem)
                 {
-                    string nomePastaImagem = _webHostEnvironment.WebRootPath;
-                    nomePastaImagem = Path.Combine(nomePastaImagem, "Imagens");
+                    string nomePastaImagem = Path.Combine(_webHostEnvironment.WebRootPath, "Imagens");
                     if (!Directory.Exists(nomePastaImagem))
                     {
                         Directory.CreateDirectory(nomePastaImagem);
@@ -162,11 +152,12 @@ namespace Project_ArqueoList.Controllers
                     await Imagem.CopyToAsync(stream);
                 }
 
-
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["ID_Utilizador"] = new SelectList(_context.Utilizador, "idUtilizador", "Username", artigo.ID_Utilizador);
             return View(artigo);
         }
+
 
         // GET: Artigos/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -181,8 +172,7 @@ namespace Project_ArqueoList.Controllers
             {
                 return NotFound();
             }
-            // Adicionar este código -->             ViewData["ID_Utilizador"] = new SelectList(_context.Utilizador, "idUtilizador", "Username");
-            ViewData["ID_Utilizador"] = new SelectList(_context.Utilizador, "idUtilizador", "Discriminator", artigo.ID_Utilizador);
+            ViewData["ID_Utilizador"] = new SelectList(_context.Utilizador, "idUtilizador", "Username");
             return View(artigo);
         }
 
@@ -198,6 +188,7 @@ namespace Project_ArqueoList.Controllers
                 return NotFound();
             }
 
+            ModelState.Remove("UtilArtigo");
             if (ModelState.IsValid)
             {
                 try
@@ -218,7 +209,7 @@ namespace Project_ArqueoList.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ID_Utilizador"] = new SelectList(_context.Utilizador, "idUtilizador", "Discriminator", artigo.ID_Utilizador);
+            ViewData["ID_Utilizador"] = new SelectList(_context.Utilizador, "idUtilizador", "Username");
             return View(artigo);
         }
 

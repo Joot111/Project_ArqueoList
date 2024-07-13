@@ -49,7 +49,14 @@
                 @Html.DisplayFor(modelItem => item.Conteudo)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Imagem)
+                    @if (!string.IsNullOrEmpty(item.Imagem))
+                    {
+                        <img src="~/Imagens/@item.Imagem" alt="Imagem do Artigo" style="max-width: 100px; height: auto;" />
+                    }
+                    else
+                    {
+                        <span>No Image</span>
+                    }
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Nome_Autor)
