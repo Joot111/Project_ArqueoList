@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +13,7 @@ using Project_ArqueoList.Models;
 
 namespace Project_ArqueoList.Controllers
 {
+    [Authorize]
     public class ArtigosController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -28,13 +30,15 @@ namespace Project_ArqueoList.Controllers
         }
 
         // GET: Artigos
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Artigos.Include(a => a.UtilArtigo);
-            return View(await applicationDbContext.ToListAsync());
+            var artigosValidados = _context.Artigos.Where(a => a.validado);
+            return View(await artigosValidados.ToListAsync());
         }
 
         // GET: Artigos/Details/5
+        [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -58,31 +62,33 @@ namespace Project_ArqueoList.Controllers
         public async Task<IActionResult> Pessoais()
         {
             // Obter o utilizador atual
-            var utilizador = await _userManager.GetUserAsync(User);
+            var userIdString = _userManager.GetUserId(User);
+
+            if (string.IsNullOrEmpty(userIdString))
+            {
+                return NotFound();
+            }
+
+            // Encontrar o Utilizador correspondente ao userIdString
+            var utilizador = await _context.Utilizador.FirstOrDefaultAsync(u => u.UserId == userIdString);
 
             if (utilizador == null)
             {
                 return NotFound();
             }
-            if (int.TryParse(utilizador.Id, out int userId))
-            {
-                // Selecionar os artigos escritos pelo utilizador atual
-                var artigosPessoais = _context.Artigos
-                    .Where(a => a.ID_Utilizador == userId);
 
-                return View(await artigosPessoais.ToListAsync());
-            }
-            else
-            {
-                // Se não puder converter, retornar um erro
-                return BadRequest("Invalid user ID");
-            }
+            // Selecionar os artigos escritos pelo utilizador atual
+            var artigosPessoais = _context.Artigos
+                .Where(a => a.ID_Utilizador == utilizador.idUtilizador);
+
+            return View(await artigosPessoais.ToListAsync());
         }
+
 
         // GET: Artigos/Create
         public IActionResult Create()
         {
-            ViewData["ID_Utilizador"] = new SelectList(_context.Utilizador, "idUtilizador", "Discriminator");
+            ViewData["ID_Utilizador"] = new SelectList(_context.Utilizador, "idUtilizador", "Username");
             return View();
         }
 
@@ -112,7 +118,8 @@ namespace Project_ArqueoList.Controllers
             {
                 // há ficheiro, mas é imagem?
                 if (!(Imagem.ContentType == "image/png" ||
-                       Imagem.ContentType == "image/jpeg")
+                       Imagem.ContentType == "image/jpeg" ||
+                       Imagem.ContentType == "imagem/jpg")
                    )
                 {
                     ModelState.AddModelError("",
@@ -136,6 +143,7 @@ namespace Project_ArqueoList.Controllers
                 }
             }
 
+            ModelState.Remove("UtilArtigo");
             if (ModelState.IsValid)
             {
                 _context.Add(artigo);
@@ -157,7 +165,6 @@ namespace Project_ArqueoList.Controllers
 
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ID_Utilizador"] = new SelectList(_context.Utilizador, "idUtilizador", "Password", artigo.ID_Utilizador);
             return View(artigo);
         }
 
@@ -174,6 +181,7 @@ namespace Project_ArqueoList.Controllers
             {
                 return NotFound();
             }
+            // Adicionar este código -->             ViewData["ID_Utilizador"] = new SelectList(_context.Utilizador, "idUtilizador", "Username");
             ViewData["ID_Utilizador"] = new SelectList(_context.Utilizador, "idUtilizador", "Discriminator", artigo.ID_Utilizador);
             return View(artigo);
         }

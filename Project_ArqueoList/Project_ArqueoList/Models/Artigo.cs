@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Project_ArqueoList.Models
 {
@@ -22,7 +23,7 @@ namespace Project_ArqueoList.Models
 
         [Display(Name = "Imagem")] // altera o nome do atributo no ecrã
         [StringLength(50)] // define o tamanho máximo como 50 caracteres
-        public string Imagem { get; set; }
+        public string? Imagem { get; set; }
 
         [StringLength(50)]
         public string Nome_Autor { get; set; }
@@ -41,6 +42,7 @@ namespace Project_ArqueoList.Models
 
         [ForeignKey(nameof(UtilArtigo))]
         public int ID_Utilizador { get; set; }
+        [BindNever]
         public Utilizador UtilArtigo { get; set; }
 
         /*[ForeignKey(nameof(UtenteArtigo))]
