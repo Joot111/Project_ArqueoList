@@ -67,7 +67,7 @@ namespace Project_ArqueoList.Controllers
                         {
                             Username = model.Username,
                             Data_Nascimento = model.Data_Nascimento,
-                            Role = model.Role,
+                           // Role = model.Role,
                             // Inicialize propriedades específicas de Administrador
                             //AdminSpecificProperty = "some value"
                         };
@@ -79,7 +79,7 @@ namespace Project_ArqueoList.Controllers
                         {
                             Username = model.Username,
                             Data_Nascimento = model.Data_Nascimento,
-                            Role = model.Role,
+                           // Role = model.Role,
                             // Inicialize propriedades específicas de Utente
                             //UtenteSpecificProperty = "some value"
                         };
@@ -91,7 +91,7 @@ namespace Project_ArqueoList.Controllers
                         {
                             Username = model.Username,
                             Data_Nascimento = model.Data_Nascimento,
-                            Role = model.Role,
+                          //  Role = model.Role,
                             // Inicialize propriedades específicas de Autor
                             //AutorSpecificProperty = "some value"
                         };
@@ -103,7 +103,7 @@ namespace Project_ArqueoList.Controllers
                         {
                             Username = model.Username,
                             Data_Nascimento = model.Data_Nascimento,
-                            Role = model.Role
+                         //  Role = model.Role
                         };
                         _context.Utilizador.Add(utilizador);
                         break;
