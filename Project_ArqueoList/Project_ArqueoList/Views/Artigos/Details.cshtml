@@ -1,75 +1,94 @@
 ﻿@model Project_ArqueoList.Models.Artigo
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = Model.Titulo;
+    Layout = "~/Views/Shared/_Layout.cshtml"; // Certifique-se de que o layout principal está sendo utilizado
 }
 
-<h1>Details</h1>
+<article class="news-article">
+    <header class="news-header">
+        <h1>@Model.Titulo</h1>
+        <p class="news-author">Por @Model.Nome_Autor</p>
+        <p class="news-date">Publicado em @Model.data_validacao.ToString("dd MMMM yyyy")</p>
+    </header>
 
-<div>
-    <h4>Artigo</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Titulo)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Titulo)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Conteudo)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Conteudo)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Imagem)
-        </dt>
-        <dd class = "col-sm-10">
-            <td>
-                @if (!string.IsNullOrEmpty(Model.Imagem))
-                {
-                    <img src="~/Imagens/@Model.Imagem" alt="Imagem do Artigo" style="max-width: 100px; height: auto;" />
-                }
-                else
-                {
-                    <span>No Image</span>
-                }
-            </td>
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Nome_Autor)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Nome_Autor)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.validado)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.validado)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.data_validacao)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.data_validacao)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.tipo)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.tipo)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UtilArtigo)
-        </dt>
-@*         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UtilArtigo.Discriminator)
-        </dd> *@
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.ID">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+    <div class="news-image">
+        @if (!string.IsNullOrEmpty(Model.Imagem))
+        {
+            <img src="~/Imagens/@Model.Imagem" alt="Imagem do Artigo" class="img-fluid" />
+        }
+        <div class="news-navigation">
+            <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model?.ID">Editar</a>
+            <a class="btn btn-secondary" asp-action="Index">Voltar à Lista</a>
+        </div>
+    </div>
+
+    <section class="news-content">
+        <p>@Model.Conteudo</p>
+    </section>
+
+    <footer class="news-footer">
+        <p>Categoria: @Model.tipo</p>
+        <p>Status de Validação: @(Model.validado ? "Validado" : "Não Validado")</p>
+    </footer>
+</article>
+
+<style>
+    .news-article {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        position: relative; /* Necessário para o posicionamento absoluto dos botões */
+    }
+
+    .news-header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+        .news-header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+    .news-author, .news-date {
+        font-size: 0.9em;
+        color: #777;
+    }
+
+    .news-image {
+        position: relative;
+        text-align: center;
+        margin: 20px 0;
+    }
+
+        .news-image img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+    .news-navigation {
+        position: absolute;
+        top: 10px; /* Ajuste conforme necessário */
+        right: 10px; /* Ajuste conforme necessário */
+        text-align: right;
+    }
+
+        .news-navigation .btn {
+            margin-left: 5px;
+        }
+
+    .news-content {
+        font-size: 1.2em;
+        line-height: 1.6;
+    }
+
+    .news-footer {
+        margin-top: 20px;
+        font-size: 0.9em;
+        color: #777
