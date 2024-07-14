@@ -122,6 +122,7 @@ namespace Project_ArqueoList.Controllers
 
                 artigo.data_validacao = DateTime.Now;
 
+                ModelState.Remove("UtilArtigo");
                 if (ModelState.IsValid)
                 {
                     _context.Add(artigo);
