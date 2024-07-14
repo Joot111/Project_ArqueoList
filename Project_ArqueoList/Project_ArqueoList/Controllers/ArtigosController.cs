@@ -20,9 +20,9 @@ namespace Project_ArqueoList.Controllers
 
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<Utilizador/*IdentityUser*/> _userManager;
 
-        public ArtigosController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment, UserManager<IdentityUser> userManager)
+        public ArtigosController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment, UserManager<Utilizador/*IdentityUser*/> userManager)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
@@ -78,8 +78,19 @@ namespace Project_ArqueoList.Controllers
             }
 
             // Selecionar os artigos escritos pelo utilizador atual
-            var artigosPessoais = _context.Artigos
+
+            // Vai ser afetado se mudar a ID_Utilizador para tipo string
+
+            /*            var artigosPessoais = _context.Artigos
                 .Where(a => a.ID_Utilizador == utilizador.idUtilizador);
+            
+            Solução:
+            var artigosPessoais = _context.Artigos
+                .Where(a => a.ID_Utilizador == utilizador.UserId);
+            */
+
+            var artigosPessoais = _context.Artigos
+                       .Where(a => a.ID_Utilizador == utilizador.UserId);
 
             return View(await artigosPessoais.ToListAsync());
         }
@@ -88,7 +99,8 @@ namespace Project_ArqueoList.Controllers
         // GET: Artigos/Create
         public IActionResult Create()
         {
-            ViewData["ID_Utilizador"] = new SelectList(_context.Utilizador, "idUtilizador", "Username");
+            //Alteração
+            ViewData["ID_Utilizador"] = new SelectList(_context.Utilizador.ToList(), "UserId", "Username");
             var artigo = new Artigo();
             return View(artigo);
         }
@@ -154,7 +166,8 @@ namespace Project_ArqueoList.Controllers
 
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ID_Utilizador"] = new SelectList(_context.Utilizador, "idUtilizador", "Username", artigo.ID_Utilizador);
+            //Foi afetado pela mudança de int para string 
+            //ViewData["ID_Utilizador"] = new SelectList(_context.Utilizador, "idUtilizador", "Username", artigo.ID_Utilizador);
             return View(artigo);
         }
 
@@ -172,7 +185,7 @@ namespace Project_ArqueoList.Controllers
             {
                 return NotFound();
             }
-            ViewData["ID_Utilizador"] = new SelectList(_context.Utilizador, "idUtilizador", "Username");
+            //ViewData["ID_Utilizador"] = new SelectList(_context.Utilizador, "idUtilizador", "Username");
             return View(artigo);
         }
 

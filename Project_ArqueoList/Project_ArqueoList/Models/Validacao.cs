@@ -25,8 +25,13 @@ namespace Project_ArqueoList.Models
         public Artigo ValidacaoArtigo { get; set; }
 
 
-        [ForeignKey(nameof(AdminValidacao))]
-        public int ID_Administrador { get; set; }
-        public Administrador AdminValidacao { get; set; }
+        //[ForeignKey(nameof(AdminValidacao))]
+        //public int ID_Administrador { get; set; }
+        //public Administrador AdminValidacao { get; set; }
+
+        [ForeignKey(nameof(Utilizador))]
+        public string ID_Administrador { get; set; } // Chave estrangeira para Utilizador
+
+        public Utilizador Utilizador { get; set; }
     }
 }

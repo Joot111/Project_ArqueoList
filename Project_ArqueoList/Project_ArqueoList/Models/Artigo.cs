@@ -41,7 +41,7 @@ namespace Project_ArqueoList.Models
 
 
         [ForeignKey(nameof(UtilArtigo))]
-        public int ID_Utilizador { get; set; }
+        public string ID_Utilizador { get; set; }
         [BindNever]
         public Utilizador UtilArtigo { get; set; }
 

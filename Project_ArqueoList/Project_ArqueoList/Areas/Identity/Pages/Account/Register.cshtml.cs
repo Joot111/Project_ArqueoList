@@ -134,7 +134,7 @@ namespace Project_ArqueoList.Areas.Identity.Pages.Account
             //ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
             // Ignorar a validação do UserId
-            ModelState.Remove("Input.Utente.UserId");
+            ModelState.Remove("Input.Admin.UserId");
 
             if (ModelState.IsValid)
             {

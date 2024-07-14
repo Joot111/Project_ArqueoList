@@ -6,7 +6,7 @@ using System.Reflection.Emit;
 
 namespace Project_ArqueoList.Data
 {
-    public class ApplicationDbContext : IdentityDbContext
+    public class ApplicationDbContext : IdentityDbContext<Utilizador>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -30,11 +30,19 @@ namespace Project_ArqueoList.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            
+            // Relação de Validação - Utilizador
+            modelBuilder.Entity<Validacao>()
+                .HasOne(v => v.Utilizador)
+                .WithMany(u => u.ListaValidacao)
+                .HasForeignKey(v => v.ID_Administrador)
+                .IsRequired();
 
             modelBuilder.Entity<IdentityRole>().HasData(
                 new IdentityRole { Id = "adm", Name = "Admin", NormalizedName = "Administrador" },
-                new IdentityRole { Id = "utente", Name = "Utente", NormalizedName = "Utente" }
-                );
+                new IdentityRole { Id = "utente", Name = "Utente", NormalizedName = "Utente" },
+                new IdentityRole { Id = "autor", Name = "Autor", NormalizedName = "Autor"}
+            );
         }
     }
 }

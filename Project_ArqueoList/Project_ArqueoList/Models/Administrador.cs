@@ -4,11 +4,11 @@
     {
         public Administrador()
         {
-            ListaValidacao = new HashSet<Validacao>();
+           // ListaValidacao = new HashSet<Validacao>();
         }
 
         public int idAdmin { get; set; }
 
-        public ICollection<Validacao> ListaValidacao { get; set; }
+        //public ICollection<Validacao> ListaValidacao { get; set; }
     }
 }

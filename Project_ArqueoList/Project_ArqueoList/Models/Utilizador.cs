@@ -1,13 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.ComponentModel.DataAnnotations;
 
 namespace Project_ArqueoList.Models
 {
-    public class Utilizador
+    public class Utilizador : IdentityUser
     {
         public Utilizador()
         {
             ListaArtigo = new HashSet<Artigo>();
+            ListaValidacao = new HashSet<Validacao>();
         }
 
         [Key]
@@ -36,5 +38,6 @@ namespace Project_ArqueoList.Models
         public string UserId { get; set; }
 
         public ICollection<Artigo> ListaArtigo { get; set; }
+        public ICollection<Validacao> ListaValidacao { get; set; }
     }
 }
