@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Project_ArqueoList.Data;
 using Project_ArqueoList.Models;
 using System.Diagnostics;
 
@@ -7,15 +9,25 @@ namespace Project_ArqueoList.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly ApplicationDbContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
+        // Construtor combinado que aceita ambos context e logger
+        public HomeController(ApplicationDbContext context, ILogger<HomeController> logger)
         {
+            _context = context;
             _logger = logger;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var artigos = await _context.Artigos.ToListAsync();
+
+            if (artigos == null || !artigos.Any())
+            {
+                ViewBag.Message = "No articles found.";
+            }
+
+            return View(artigos);
         }
 
         public IActionResult Privacy()

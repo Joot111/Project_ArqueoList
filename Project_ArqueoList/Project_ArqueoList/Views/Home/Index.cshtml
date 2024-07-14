@@ -1,4 +1,6 @@
-﻿@{
+﻿@model IEnumerable<Project_ArqueoList.Models.Artigo>
+
+@{
     ViewData["Title"] = "Home Page";
 }
 ﻿
@@ -19,12 +21,34 @@
             <section>
                 <h2 class="text-2xl font-semibold mb-2">Featured Articles</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <!-- Article items go here -->
-                    <div class="border border-gray-300 p-4 rounded">
-                        <h3 class="text-xl font-bold">Article Title</h3>
-                        <p class="text-gray-700">Brief description of the article...</p>
-                        <a href="#" class="text-blue-500 hover:underline">Read more</a>
-                    </div>
+                    @if (Model == null || !Model.Any())
+                    {
+                        <p>No articles available.</p>
+                    }
+                    else
+                    {
+                        @foreach (var artigo in Model)
+                        {
+                            <div class="border border-gray-300 p-4 rounded">
+                                <h3 class="text-xl font-bold">@artigo.Titulo</h3>
+                                <p class="text-gray-700">
+                                    @if (!string.IsNullOrEmpty(artigo.Imagem))
+                                    {
+                                        <img src="~/Imagens/@artigo.Imagem" alt="Imagem do Artigo" class="img-fluid mb-2" style="max-height: 200px; object-fit: cover; width: 100%;" />
+                                    }
+                                    @if (artigo.Conteudo.Length > 100)
+                                    {
+                                        @: @artigo.Conteudo.Substring(0, 100)...
+                                    }
+                                    else
+                                    {
+                                        @: @artigo.Conteudo
+                                    }
+                                </p>
+                                <a href="@Url.Action("Details", "Artigos", new { id = artigo.ID })" class="text-blue-500 hover:underline">Read more</a>
+                            </div>
+                        }
+                    }
                 </div>
             </section>
         </main>
