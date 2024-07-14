@@ -11,7 +11,6 @@ namespace Project_ArqueoList.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly ApplicationDbContext _context;
 
-        // Construtor combinado que aceita ambos context e logger
         public HomeController(ApplicationDbContext context, ILogger<HomeController> logger)
         {
             _context = context;
@@ -20,14 +19,23 @@ namespace Project_ArqueoList.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var artigos = await _context.Artigos.ToListAsync();
-
-            if (artigos == null || !artigos.Any())
+            try
             {
-                ViewBag.Message = "No articles found.";
-            }
+                var artigos = await _context.Artigos.ToListAsync();
 
-            return View(artigos);
+                if (artigos == null || !artigos.Any())
+                {
+                    ViewBag.Message = "No articles found.";
+                }
+
+                return View(artigos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while fetching articles.");
+                ViewBag.Message = "An error occurred while fetching articles.";
+                return View(new List<Artigo>());
+            }
         }
 
         public IActionResult Privacy()

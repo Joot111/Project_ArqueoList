@@ -1,5 +1,4 @@
-﻿<!-- Views/Artigos/Create.cshtml -->
-@model Project_ArqueoList.Models.Artigo
+﻿@model Project_ArqueoList.Models.Artigo
 
 @{
     ViewData["Title"] = "Criar Artigo";
@@ -11,10 +10,6 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-
-        @* este objeto irá levar os conteúdos do formulário para o SERVIDOR
-        - o atributo 'method' define como os dados são enviados
-        - o atributo 'enctype' define que vamos enviar, também, ficheiros *@
         <form asp-action="Create" method="post" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
@@ -24,7 +19,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="Conteudo" class="control-label"></label>
-                <input asp-for="Conteudo" class="form-control" />
+                <textarea asp-for="Conteudo" class="form-control"></textarea>
                 <span asp-validation-for="Conteudo" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -32,17 +27,6 @@
                 <input type="file" asp-for="Imagem" accept=".png,.jpg,.jpeg" class="form-control" />
                 <span asp-validation-for="Imagem" class="text-danger"></span>
             </div>
-
-            @* Adiciona uma pré-visualização da imagem se houver uma imagem existente *@
-            @if (Model != null && !string.IsNullOrEmpty(Model.Imagem))
-            {
-                <div class="form-group">
-                    <label>Imagem Atual</label>
-                    <div>
-                        <img src="~/Imagens/@Model.Imagem" alt="Imagem do Artigo" style="max-width: 100%; height: auto;" />
-                    </div>
-                </div>
-            }
 
             <div class="form-group">
                 <label asp-for="Nome_Autor" class="control-label"></label>

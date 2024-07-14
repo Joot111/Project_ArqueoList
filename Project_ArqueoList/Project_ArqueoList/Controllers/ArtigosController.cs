@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Project_ArqueoList.Data;
 using Project_ArqueoList.Models;
 
@@ -17,16 +18,16 @@ namespace Project_ArqueoList.Controllers
     public class ArtigosController : Controller
     {
         private readonly ApplicationDbContext _context;
-
         private readonly IWebHostEnvironment _webHostEnvironment;
-
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly ILogger<ArtigosController> _logger;
 
-        public ArtigosController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment, UserManager<IdentityUser> userManager)
+        public ArtigosController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment, UserManager<IdentityUser> userManager, ILogger<ArtigosController> logger)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
             _userManager = userManager;
+            _logger = logger;
         }
 
         // GET: Artigos
@@ -61,7 +62,6 @@ namespace Project_ArqueoList.Controllers
         // GET: Artigos/Pessoais
         public async Task<IActionResult> Pessoais()
         {
-            // Obter o utilizador atual
             var userIdString = _userManager.GetUserId(User);
 
             if (string.IsNullOrEmpty(userIdString))
@@ -69,7 +69,6 @@ namespace Project_ArqueoList.Controllers
                 return NotFound();
             }
 
-            // Encontrar o Utilizador correspondente ao userIdString
             var utilizador = await _context.Utilizador.FirstOrDefaultAsync(u => u.UserId == userIdString);
 
             if (utilizador == null)
@@ -77,13 +76,11 @@ namespace Project_ArqueoList.Controllers
                 return NotFound();
             }
 
-            // Selecionar os artigos escritos pelo utilizador atual
             var artigosPessoais = _context.Artigos
                 .Where(a => a.ID_Utilizador == utilizador.idUtilizador);
 
             return View(await artigosPessoais.ToListAsync());
         }
-
 
         // GET: Artigos/Create
         public IActionResult Create()
@@ -94,70 +91,53 @@ namespace Project_ArqueoList.Controllers
         }
 
         // POST: Artigos/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Titulo,Conteudo, Nome_Autor,validado,data_validacao,tipo,ID_Utilizador")] Artigo artigo, IFormFile Imagem)
+        public async Task<IActionResult> Create([Bind("ID,Titulo,Conteudo,Nome_Autor,validado,data_validacao,tipo,ID_Utilizador")] Artigo artigo, IFormFile Imagem)
         {
-            // Vars auxiliares
-            string nomeImagem = "";
-            bool haImagem = false;
-
-            // Há ficheiro?
-            if (Imagem == null)
+            try
             {
-                ModelState.AddModelError("", "O fornecimento de uma imagem é obrigatório!");
-                return View(artigo);
-            }
-            else
-            {
-                // Há ficheiro, mas é imagem?
-                if (!(Imagem.ContentType == "image/png" || Imagem.ContentType == "image/jpeg" || Imagem.ContentType == "image/jpg"))
+                if (Imagem == null)
+                {
+                    ModelState.AddModelError("", "O fornecimento de uma imagem é obrigatório!");
+                    return View(artigo);
+                }
+                else if (!(Imagem.ContentType == "image/png" || Imagem.ContentType == "image/jpeg" || Imagem.ContentType == "image/jpg"))
                 {
                     ModelState.AddModelError("", "Tem de fornecer um ficheiro PNG ou JPG para atribuir uma imagem!");
                     return View(artigo);
                 }
                 else
                 {
-                    // Há ficheiro, e é uma imagem válida
-                    haImagem = true;
-                    // Obter o nome a atribuir à imagem
-                    Guid g = Guid.NewGuid();
-                    nomeImagem = g.ToString();
-                    // Obter a extensão do nome do ficheiro
-                    string extensao = Path.GetExtension(Imagem.FileName);
-                    // Adicionar a extensão ao nome da imagem
-                    nomeImagem += extensao;
-                    // Adicionar o nome do ficheiro ao objeto que vem do browser
+                    string nomeImagem = Guid.NewGuid().ToString() + Path.GetExtension(Imagem.FileName);
                     artigo.Imagem = nomeImagem;
-                }
-            }
 
-            ModelState.Remove("UtilArtigo");
-            if (ModelState.IsValid)
-            {
-                _context.Add(artigo);
-                await _context.SaveChangesAsync();
+                    var filePath = Path.Combine(_webHostEnvironment.WebRootPath, "Imagens", nomeImagem);
 
-                if (haImagem)
-                {
-                    string nomePastaImagem = Path.Combine(_webHostEnvironment.WebRootPath, "Imagens");
-                    if (!Directory.Exists(nomePastaImagem))
+                    using (var stream = new FileStream(filePath, FileMode.Create))
                     {
-                        Directory.CreateDirectory(nomePastaImagem);
+                        await Imagem.CopyToAsync(stream);
                     }
-                    string caminhoFinalImagem = Path.Combine(nomePastaImagem, nomeImagem);
-                    using var stream = new FileStream(caminhoFinalImagem, FileMode.Create);
-                    await Imagem.CopyToAsync(stream);
                 }
 
-                return RedirectToAction(nameof(Index));
+                artigo.data_validacao = DateTime.Now;
+
+                if (ModelState.IsValid)
+                {
+                    _context.Add(artigo);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao criar o artigo");
+                ModelState.AddModelError("", "Ocorreu um erro ao tentar criar o artigo. Tente novamente.");
+            }
+
             ViewData["ID_Utilizador"] = new SelectList(_context.Utilizador, "idUtilizador", "Username", artigo.ID_Utilizador);
             return View(artigo);
         }
-
 
         // GET: Artigos/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -177,8 +157,6 @@ namespace Project_ArqueoList.Controllers
         }
 
         // POST: Artigos/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ID,Titulo,Conteudo,Imagem,Nome_Autor,validado,data_validacao,tipo,ID_Utilizador")] Artigo artigo)
